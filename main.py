@@ -67,5 +67,5 @@ def main_menu():
         else:
             print("Opción inválida.")
 
-if _name_ == "_main_":
-    main_menu()
+if __name__ == "__main__":
+    main_menu()
