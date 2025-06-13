@@ -1,36 +1,34 @@
-from database import (
-    check_database,
-    create_user_table,
-    add_user,
-    login_user,
-    list_users,
-    delete_user_by_id
-)
+from services.database_service import check_database, create_user_table
+from services.auth_service import login_user, register_user
+from repository.user_repository import list_users, delete_user_by_id, update_user_role
+from models.usuario import Usuario
 
 def admin_menu():
     while True:
         print("\n--- Menú Administrador ---")
         print("1. Ver usuarios")
         print("2. Eliminar usuario")
+        print("3. Modificar rol de un usuario")
         print("0. Cerrar sesión")
         option = input("Opción: ")
         if option == "1":
             list_users()
-            input("Presiona ENTER para continuar...")
         elif option == "2":
-            user_id = input("Ingrese el ID del usuario a eliminar: ")
-            if not user_id.isdigit():
-                print(" ID inválido.")
-            else:
-                delete_user_by_id(user_id)
-            input("Presiona ENTER para continuar...")
+            user_id = input("ID del usuario a eliminar: ")
+            delete_user_by_id(user_id)
+        elif option == "3":
+            user_id = input("ID del usuario: ")
+            new_role = input("Nuevo rol (admin/usuario): ").lower()
+            update_user_role(user_id, new_role)
         elif option == "0":
             break
         else:
             print(" Opción inválida.")
 
-def user_menu(name):
-    print(f"\n Bienvenido/a {name}. No tienes permisos administrativos.")
+def user_menu(user: Usuario):
+    print(f"\n Bienvenido/a {user.nombre}")
+    print(f" Tu usuario: {user.usuario}")
+    print(f" Tu rol: {user.rol}")
     input("Presiona ENTER para cerrar sesión.")
 
 def main_menu():
@@ -45,20 +43,16 @@ def main_menu():
         option = input("Seleccione una opción: ")
 
         if option == "1":
-            full_name = input("Nombre completo: ")
-            username = input("Nombre de usuario: ")
-            password = input("Contraseña: ")
-            role = input("Rol (admin/usuario): ").lower()
-            add_user(full_name, username, password, role)
+            register_user()
         elif option == "2":
             username = input("Usuario: ")
             password = input("Contraseña: ")
             user = login_user(username, password)
             if user:
-                if user["role"] == "admin":
+                if user.rol == "admin":
                     admin_menu()
                 else:
-                    user_menu(user["name"])
+                    user_menu(user)
             else:
                 print("Usuario o contraseña incorrectos.")
         elif option == "0":
